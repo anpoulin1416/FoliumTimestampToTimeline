@@ -1,6 +1,8 @@
 import folium
 from folium.plugins import MeasureControl, MousePosition
-from folium.plugins import TimestampedGeoJson
+from folium.plugins import Timeline, TimelineSlider
+from folium.plugins import Realtime
+from folium import LayerControl, JsCode
 import json
 import pandas as pd
 import geopandas
@@ -70,7 +72,7 @@ for index, tileName in enumerate(names):
 lastTile = list(map._children.items())[-1][0]
 map._children[lastTile].show = True
 
-folium.plugins.TimestampedGeoJson(
+timeline = Timeline(
     {
         "type": "FeatureCollection",
         "features": [
@@ -81,21 +83,30 @@ folium.plugins.TimestampedGeoJson(
                 "coordinates": item[1]
                 },
             "properties": {
-                "times": item[0],
+                "start": item[0][0],
+                "end": item[0][1],
                 "popup": item[2],
-                "icon": "circle",
-                "iconstyle": {"color": colors[item[3]], "fill": "true", "fillOpacity": 1.0, "radius": 5},
             },
         }
         for item in zip(times, coords, popups, data)
         ]
     },
-    period="P1D",
-    duration="P0D",
-    min_speed=0.3,
-    max_speed=3.0,
-    transition_time=1000,
-    auto_play=False,
 ).add_to(map)
 
-map.save('TimestampedGeoJson.html')
+#Realtime(
+#    timeline,
+#    get_feature_id=JsCode("(f) => { return f.properties.objectid }"),
+#    point_to_layer=JsCode("(f, latlng) => { return L.circleMarker(latlng, {radius: 8, fillOpacity: 0.5})}"),
+#    interval=10000,
+#).add_to(map)
+
+TimelineSlider(
+    auto_play=False,
+    show_ticks=True,
+    enable_keyboard_controls=True,
+    playback_duration=30000,
+).add_timelines(timeline).add_to(map)
+
+LayerControl().add_to(map)
+
+map.save('UseTimeLine.html')

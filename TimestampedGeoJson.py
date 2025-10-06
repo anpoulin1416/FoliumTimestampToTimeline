@@ -72,6 +72,7 @@ for index, tileName in enumerate(names):
 lastTile = list(map._children.items())[-1][0]
 map._children[lastTile].show = True
 
+group = folium.FeatureGroup(name='Pigeons', control=True).add_to(map)
 timeline = Timeline(
     {
         "type": "FeatureCollection",
@@ -91,20 +92,15 @@ timeline = Timeline(
         for item in zip(times, coords, popups, data)
         ]
     },
-).add_to(map)
-
-#Realtime(
-#    timeline,
-#    get_feature_id=JsCode("(f) => { return f.properties.objectid }"),
-#    point_to_layer=JsCode("(f, latlng) => { return L.circleMarker(latlng, {radius: 8, fillOpacity: 0.5})}"),
-#    interval=10000,
-#).add_to(map)
+)
+timeline.add_to(group)
 
 TimelineSlider(
     auto_play=False,
     show_ticks=True,
     enable_keyboard_controls=True,
     playback_duration=30000,
+#    point_to_layer=JsCode("(f, latlng) => { return L.circleMarker(latlng, {radius: 8}) }"),
 ).add_timelines(timeline).add_to(map)
 
 LayerControl().add_to(map)
